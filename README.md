@@ -1,5 +1,9 @@
 multiplayer-game
 ================
+DEMO
+
+http://youtu.be/HUbNPIwcu_4
+
 This repository consists of 3 tightly related projects -- client side, server side and library 
 which is shared by both client and server. 
 
