@@ -7,7 +7,7 @@ public class ServerMessage implements Serializable{
 	public CharacterControlData characterData;
 	
 	public int messageType;
-
+	public long id;
 	public int port;
 	
 	public ServerMessage(int msgType){

@@ -9,6 +9,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="C:/Users/Titas/Desktop/javaProjektai/MultiPlayerClient/lib/jar/lwjgl_util.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Titas/Desktop/javaProjektai/MultiPlayerClient/lib/jar/slick-util.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Titas/Desktop/gameLibrary.jar"/>
+	<classpathentry kind="lib" path="lib/jar/gameLibrary.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
