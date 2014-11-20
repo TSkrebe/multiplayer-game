@@ -24,8 +24,11 @@ example:
 //Client side 
  
 To run MultiPlayerClient project you have to pass arguments in such order 
+
 1. IP of server where server side is running 
+
 2. TCP port of server 
+
 3. UDP port through which the game play will be updated (firewalls and router might block incomming traffic) 
  
 example: 
