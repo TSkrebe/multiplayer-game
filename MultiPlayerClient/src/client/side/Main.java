@@ -5,6 +5,7 @@ import game.library.Box;
 import game.library.BulletInfo;
 import game.library.CharacterControlData;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,15 +43,29 @@ public class Main {
 	private Box updatedCharacter; // clients character that we get from server
 
 	private Camera camera;
-
+	
+	private String server_ip;
+	private int server_port_tcp;
+	private int client_port_udp;
+	
 	public static void main(String[] args) {
-
-		Main main = new Main();
+		
+		if (args.length != 3){
+			throw new IllegalArgumentException("bad input");
+		}
+		
+		Main main = new Main(args[0], Integer.parseInt(args[1]), Integer.parseInt(args[2]));
 		main.initOpenGl();
 		main.init();
 		main.start();
 	}
-
+	
+	public Main(String ip, int portTcp, int portUdp){
+		server_ip = ip;
+		server_port_tcp = portTcp;
+		client_port_udp = portUdp;
+	}
+	
 	/** Initializing OpenGL functions */
 	private void initOpenGl() {
 
@@ -70,7 +85,7 @@ public class Main {
 	/** Setting up screen, establishing connections (TCP, UPD) with server, etc. */
 	private void init() {
 
-		connections = new TcpConnection(this);
+		connections = new TcpConnection(this, server_ip, server_port_tcp);
 
 		if ((ID = connections.getIdFromServer()) == -1) {
 			System.err.println("cant get id for char");
@@ -88,7 +103,7 @@ public class Main {
 		movingObjects = new ArrayList<Box>();
 
 		// start reading data from server
-		new Thread(new UdpConnection(this, connections)).start();
+		new Thread(new UdpConnection(this, connections, client_port_udp)).start();
 	}
 
 	/** Starting game loop */

@@ -1,4 +1,4 @@
-package com.multiplayer.server;
+package server.side;
 
 
 import game.library.Box;
@@ -8,6 +8,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -27,12 +28,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Main {
 
-	private static final String TILES_FILE = "gameInfo.txt";
+	private static final String TILES_FILE = "/gameInfo.txt";
 	
 	 // refreshing game state and sending data to clients every x ms
 	private static final long RESHRESH_GAP = 30;
 
-	private static int SERVER_PORT_TCP = 4444;
+	private static int SERVER_PORT_TCP;
 	
 	private static long IDs = 0L;
 	
@@ -45,15 +46,19 @@ public class Main {
 	private List<Box> gamePlay;
 	
 	private UdpConnectionsSend udpSend;
-
+	//private final 
 	public static void main(String[] args) {
 		
-		Main main = new Main();
+		if (args.length != 1)
+			throw new IllegalArgumentException("Bad input");
+		
+		Main main = new Main(Integer.parseInt(args[0]));
 		main.start();
 	}
 	
-	public Main(){
+	public Main(int tcpPort){
 		
+		SERVER_PORT_TCP = tcpPort;
 		activeClients = new CopyOnWriteArrayList<IpPort>();
 		tiles = new ArrayList<Box>();
 		gamePlay = new ArrayList<Box>();
@@ -64,8 +69,8 @@ public class Main {
 	private void start(){
 			
 		gameStateRefresher();
-		
-		try (Scanner fileReader = new Scanner(new File(TILES_FILE));
+		InputStream ff = Main.class.getResourceAsStream(TILES_FILE);
+		try (Scanner fileReader = new Scanner(ff);
 		ServerSocket serverSocket = new ServerSocket(SERVER_PORT_TCP)){
 
 			while(fileReader.hasNext()){

@@ -7,13 +7,14 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.SocketAddress;
 import java.util.List;
 
 /**
 * This class establishes UDP connection with server and receives data about
 * the game state
 */
-public class UdpConnection implements Runnable {
+class UdpConnection implements Runnable {
 	
 		private Main main;
 		
@@ -25,12 +26,15 @@ public class UdpConnection implements Runnable {
 		
 		//set udp port you want get game-play though. Make sure
 		//router port forwards it.
-		private static final int UDP_PORT = -1;
+		//private final int UDP_PORT;
 
-		public UdpConnection(Main main, TcpConnection tcpConnection) {
+		private final int UDP_PORT;
+
+		UdpConnection(Main main, TcpConnection tcpConnection, int client_port_udp) {
 			
 			this.main = main;
 			this.tcpConnection = tcpConnection;
+			UDP_PORT = client_port_udp;
 		}
 
 		/** Listens to server, reads sent data and passes it to main class */

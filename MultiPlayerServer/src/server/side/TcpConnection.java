@@ -1,4 +1,4 @@
-package com.multiplayer.server;
+package server.side;
 
 import game.library.ServerMessage;
 

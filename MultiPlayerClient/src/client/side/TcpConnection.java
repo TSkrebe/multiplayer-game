@@ -18,18 +18,20 @@ class TcpConnection {
 	private static final int GET_ID_IP_PORT = 3;
 	private static final int REMOVE_CHARACTER = 4;
 	
-	private static int SERVER_PORT_TCP = 4444;
+	private final int SERVER_PORT_TCP;
 	
 	//ip of server side
-	private static String SERVER_IP = "localhost";
+	private final String SERVER_IP;
 
 	private ObjectOutputStream oos;
 	private ObjectInputStream ois;
 	
 	private Socket socket;
 
-	TcpConnection(Main main) {
+	TcpConnection(Main main, String ip, int port) {
 		
+		SERVER_PORT_TCP = port;
+		SERVER_IP = ip;
 		try {
 			socket = new Socket(SERVER_IP, SERVER_PORT_TCP);
 			oos = new ObjectOutputStream(socket.getOutputStream());
