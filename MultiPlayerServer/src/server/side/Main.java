@@ -69,6 +69,7 @@ public class Main {
 	private void start(){
 			
 		gameStateRefresher();
+
 		InputStream ff = Main.class.getResourceAsStream(TILES_FILE);
 		try (Scanner fileReader = new Scanner(ff);
 		ServerSocket serverSocket = new ServerSocket(SERVER_PORT_TCP)){
