@@ -96,7 +96,7 @@ class TcpConnection {
 			ServerMessage msg = new ServerMessage(REMOVE_CHARACTER);
 			msg.id = id;
 			oos.writeObject(msg);
-			oos.reset();
+			//oos.reset();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

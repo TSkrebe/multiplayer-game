@@ -11,13 +11,13 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/Titas/Desktop/javaProjektai/MultiPlayerClient/lib/jar/lwjgl.jar">
+	<classpathentry kind="lib" path="lib/jar/gameLibrary.jar"/>
+	<classpathentry kind="lib" path="lib/jar/lwjgl_util.jar"/>
+	<classpathentry kind="lib" path="lib/jar/lwjgl.jar">
 		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="C:/Users/Titas/Desktop/javaProjektai/MultiPlayerClient/lib/native-win"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="MultiPlayerClient/lib/native-win"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/Titas/Desktop/javaProjektai/MultiPlayerClient/lib/jar/lwjgl_util.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Titas/Desktop/javaProjektai/MultiPlayerClient/lib/jar/slick-util.jar"/>
-	<classpathentry kind="lib" path="lib/jar/gameLibrary.jar"/>
+	<classpathentry kind="lib" path="lib/jar/slick-util.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
