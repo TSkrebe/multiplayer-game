@@ -31,9 +31,9 @@ class TcpConnection implements Runnable{
 	@Override
 	public void run() {
 		
-		try{
-			ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-			ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+		try(ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+				ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())){
+			
 			while(true){
 				ServerMessage msg = (ServerMessage)ois.readObject();
 				switch(msg.messageType){
@@ -61,9 +61,9 @@ class TcpConnection implements Runnable{
 				
 			}
 		}catch(IOException | ClassNotFoundException e){
-			
+			e.printStackTrace();
 		}
-		
+		System.out.println("oOUTTTT");
 	}
 
 }
