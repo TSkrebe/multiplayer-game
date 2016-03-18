@@ -1,14 +1,16 @@
 package client.side;
 
-import game.library.Box;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.SocketAddress;
+import java.net.SocketException;
 import java.util.List;
+
+import javax.xml.bind.JAXBException;
+
+import client.side.models.Box;
 
 /**
 * This class establishes UDP connection with server and receives data about
@@ -49,21 +51,35 @@ class UdpConnection implements Runnable {
 				else{
 					datagramSocket = new DatagramSocket(UDP_PORT);
 				}
-				// send info about udp to server
+				// send info about UDP to server
 				tcpConnection.sendIpIdPort(datagramSocket.getLocalPort());
-
+				System.err.println(datagramSocket.getLocalPort());
 				DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 				while (true) {
-					datagramSocket.receive(packet);
-					ByteArrayInputStream bais = new ByteArrayInputStream(packet.getData());
-					ObjectInputStream ois = new ObjectInputStream(bais);
-					List<Box> objects = (List<Box>) ois.readObject();
+
+					String data;
+					try {
+						datagramSocket.receive(packet);
+						ByteArrayInputStream bais = new ByteArrayInputStream(packet.getData());
+						ObjectInputStream ois = new ObjectInputStream(bais);
+						data = (String) ois.readObject();
+						System.err.println(data);
+					} catch (IOException e1) {
+						e1.printStackTrace();
+						continue;
+					}
+					List<Box> objects = null;
+					try {
+						objects = Helper.unmarshall(data);
+					} catch (JAXBException e) {
+						e.printStackTrace();
+					}
 					main.updateListOfObjects(objects);
 					packet.setData(buffer);
 					packet.setLength(buffer.length);
 				}
 
-			} catch (IOException | ClassNotFoundException e) {
+			} catch ( ClassNotFoundException | SocketException e) {
 				e.printStackTrace();
 			}
 

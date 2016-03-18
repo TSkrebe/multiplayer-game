@@ -1,0 +1,11 @@
+MultiPlayerClient/bin
+MultiPlayerServer/bin
+
+MultiPlayerServer/.settings
+MultiPlayerServer/.project
+MultiPlayerServer/.classpath
+
+MultiPlayerClient/.settings
+MultiPlayerClient/.project
+MultiPlayerClient/.classpath
+

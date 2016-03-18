@@ -1,12 +1,15 @@
 package server.side;
 
-import game.library.ServerMessage;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+
+import javax.xml.bind.JAXBException;
+
+import server.side.models.ServerMessage;
 
 /**
  * This class establishes TCP connection and listens to client side
@@ -35,24 +38,37 @@ class TcpConnection implements Runnable{
 				ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())){
 			
 			while(true){
-				ServerMessage msg = (ServerMessage)ois.readObject();
-				switch(msg.messageType){
+				String msg = (String)ois.readObject();
+				ServerMessage sm;
+				try {
+					sm = Helper.unmarshall(msg);
+				} catch (JAXBException e) {
+					e.printStackTrace();
+					continue;
+				}
+				switch(sm.messageType){
 					case GET_ID:
 						oos.writeLong(main.getId());
 						break;
 					case GET_MAP:
-						oos.writeObject(main.getMap());
+						try {
+							String data = Helper.marshall(main.getMap());
+							oos.writeObject(data);
+						} catch (JAXBException e) {
+							e.printStackTrace();
+						}
 						break;
 					case SEND_MAIN_CHARACTER:
-						main.includeCharacter(msg.characterData);
+						main.includeCharacter(sm.characterData);
 						break;
 					case GET_ID_IP_PORT: 
 						String ipString = socket.getInetAddress().getHostName();
 						InetAddress clientIp = InetAddress.getByName(ipString);
-						main.addressBook(clientIp, msg.port);
+						System.err.println(ipString + " " + clientIp);
+						main.addressBook(clientIp, sm.port);
 						break;
 					case REMOVE_CHARACTER:
-						main.removeCharacter(msg.id);
+						main.removeCharacter(sm.id);
 						break;
 					default:
 						break;
@@ -62,8 +78,8 @@ class TcpConnection implements Runnable{
 			}
 		}catch(IOException | ClassNotFoundException e){
 			e.printStackTrace();
+			System.out.println("Player leaves");
 		}
-		System.out.println("oOUTTTT");
 	}
 
 }

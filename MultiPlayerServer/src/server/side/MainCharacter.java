@@ -1,8 +1,5 @@
 package server.side;
 
-import game.library.Box;
-import game.library.BulletInfo;
-import game.library.CharacterControlData;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,6 +7,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Vector;
+
+import server.side.models.Box;
+import server.side.models.Bullet;
+import server.side.models.CharacterObj;
 
 public class MainCharacter{
 
@@ -27,7 +28,7 @@ public class MainCharacter{
 	
 	//Thread safe list because bullets can be updated while 
 	//iterating them which would resolve in an error.
-	private List<Bullet> bullets;
+	private List<ServerBullet> bullets;
 	
 	private long id;
 
@@ -41,7 +42,7 @@ public class MainCharacter{
 	 * @param data This is data that we get from client side and put on the server side
 	 * to simulate game.
 	 */
-	MainCharacter(CharacterControlData data) {
+	MainCharacter(CharacterObj data) {
 		
 		x = 0;
 		y = 0;
@@ -59,7 +60,7 @@ public class MainCharacter{
 		
 		id = data.id;
 		
-		bullets = Collections.synchronizedList(new ArrayList<Bullet>());
+		bullets = Collections.synchronizedList(new ArrayList<ServerBullet>());
 			
 		xp = 100;
 		
@@ -72,7 +73,7 @@ public class MainCharacter{
 	 * to simulate game.
 	 */
 	
-	void updateState(CharacterControlData data) {
+	void updateState(CharacterObj data) {
 		
 		xVel = data.xVel;
 		yVel = data.yVel;
@@ -84,10 +85,11 @@ public class MainCharacter{
 	 * @param newBullets New bullets.
 	 */
 	
-	private void addBullets(List<BulletInfo> newBullets){
+	private void addBullets(List<Bullet> newBullets){
+		if (newBullets == null)	return;
 		
-		for (BulletInfo sb : newBullets){
-			bullets.add(new Bullet(sb.x, sb.y, sb.k, sb.c, sb.pn, r, g, b));
+		for (Bullet sb : newBullets){
+			bullets.add(new ServerBullet(sb.x, sb.y, sb.k, sb.c, sb.pn, r, g, b));
 		}
 	}
 	
@@ -107,10 +109,10 @@ public class MainCharacter{
 		//updating bullets
 		synchronized (bullets) {
 			
-			Iterator<Bullet> itr = bullets.listIterator();
+			Iterator<ServerBullet> itr = bullets.listIterator();
 			while (itr.hasNext()) {
 				
-				Bullet bullet = itr.next();
+				ServerBullet bullet = itr.next();
 				if (bullet.update(tiles, fullCharacters, id)) {
 					itr.remove();
 				}
@@ -189,9 +191,9 @@ public class MainCharacter{
 	}
 	
 	/**
-	 * Bullet class represents bullets of main character
+	 * ServerBullet class represents bullets of main character
 	 */
-	private class Bullet {
+	private class ServerBullet {
 
 		private float d, 	// distance between old and new bullet position
 				direc; 		// y=kx+c going up or down
@@ -199,7 +201,7 @@ public class MainCharacter{
 		private int width, height;
 		private float r, g,b;
 		
-		public Bullet(float x, float y, float k, float c, float direc, float r, float g, float b){
+		public ServerBullet(float x, float y, float k, float c, float direc, float r, float g, float b){
 			
 			this.x = x;
 			this.y = y;

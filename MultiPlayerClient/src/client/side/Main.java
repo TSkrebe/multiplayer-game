@@ -1,11 +1,7 @@
 package client.side;
 
 import static org.lwjgl.opengl.GL11.*;
-import game.library.Box;
-import game.library.BulletInfo;
-import game.library.CharacterControlData;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,11 +11,18 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 
+import client.side.models.Box;
+import client.side.models.Bullet;
+import client.side.models.CharacterObj;
+
 /**
  * 
  * @author Titas Skrebe
  *
- * This is the main class of client side of online multiplayer game.
+ * This is the main class of a client side for an online multiplayer game.
+ * 
+ * Go to www.tskrebe.me for more info 
+ * 
  */
 public class Main {
 
@@ -31,12 +34,12 @@ public class Main {
 
 	private static final int FRAMES_PER_SECOND = 30;
 
-	static long ID = -1; // we get ID from server side
+	static long ID = -1; // we get ID from the server side
 
 	private TcpConnection connections; // establishing TCP connection
 
-	private CharacterControlData character; // data about player to send to server
-	private List<BulletInfo> createdBullets; // bullets shot in every frame, also to server
+	private CharacterObj character; // data about the main character
+	private List<Bullet> bullets; // bullets shot in every frame, also to server
 
 	private List<Box> obstacles;
 	private List<Box> movingObjects; // all players and bullets. We get this from server
@@ -51,7 +54,7 @@ public class Main {
 	public static void main(String[] args) {
 		
 		if (args.length != 3){
-			throw new IllegalArgumentException("bad input");
+			throw new IllegalArgumentException("Bad input. You need [REMOTE IP] [REMOTE TCP PORT] [LOCAL UDP PORT or -1 for random port]");
 		}
 		
 		Main main = new Main(args[0], Integer.parseInt(args[1]), Integer.parseInt(args[2]));
@@ -71,6 +74,7 @@ public class Main {
 
 		try {
 			Display.setDisplayMode(new DisplayMode(DISPLAY_WIDTH, DISPLAY_HEIGTH));
+			Display.setResizable(true);
 			Display.create();
 
 		} catch (LWJGLException e) {
@@ -91,22 +95,17 @@ public class Main {
 			System.err.println("cant get id for char");
 		}
 		
-		System.out.println(ID);
 		obstacles = connections.getMapDetails();
-		if (obstacles == null) {
-			System.err.println("cant get tiles");
-		}
 
-		character = new CharacterControlData(0, 0, ID);
-		createdBullets = new ArrayList<BulletInfo>();
+		character = new CharacterObj(0, 0, ID);
+		bullets = new ArrayList<Bullet>();
 		camera = new Camera(0, 0);
 		movingObjects = new ArrayList<Box>();
 
-		// start reading data from server
 		new Thread(new UdpConnection(this, connections, client_port_udp)).start();
 	}
 
-	/** Starting game loop */
+	/** Game loop */
 	private void start() {
 
 		while (!Display.isCloseRequested()) {
@@ -128,6 +127,7 @@ public class Main {
 		closingOperations();
 	}
 
+	
 	/** Updating camera's position */
 	private void update() {
 
@@ -136,10 +136,12 @@ public class Main {
 		}
 	}
 
+	
 	/** Rendering obstacles, players and bullets */
 	private void render() {
 
 		glTranslatef(-camera.xmov, -camera.ymov, 0);	//camera's position
+
 		for (Box box : obstacles) {
 			drawSquare(box);
 		}
@@ -163,9 +165,9 @@ public class Main {
 	/** Function to send main characters data to server */
 	private void sendCharacter() {
 
-		character.newBullets = createdBullets;
+		character.newBullets = bullets;
 		connections.sendUpdatedVersion(character);
-		createdBullets.clear();
+		bullets.clear();
 	}
 
 	/** Closing game */
@@ -182,6 +184,7 @@ public class Main {
 	 * @param objects Object can be either bullet or player
 	 */
 	void updateListOfObjects(List<Box> objects) {
+		if (objects == null)	return;
 		movingObjects = objects;
 		for (Box box : objects) {
 			if (box.id == ID) {
@@ -191,7 +194,8 @@ public class Main {
 		}
 	}
 	
-	//Because input stucks sometimes
+
+	
 	private boolean up = false;
 	private boolean down = false;
 	private boolean right = false;
@@ -200,12 +204,12 @@ public class Main {
 	private void handlingEvents() {
 
 		if (Display.isActive()) { // if display is focused events are handled
-
+			
+			// new bullets shot
 			while (Mouse.next()) {
+				
+				if (Mouse.getEventButtonState() && updatedCharacter != null) {	
 
-				if (Mouse.getEventButtonState() && updatedCharacter != null) { // create
-																				// new
-																				// bullet
 					float xmouse = Mouse.getX() + camera.x;
 					float ymouse = DISPLAY_HEIGTH - Mouse.getY() + camera.y;
 					float pnx = 1;
@@ -217,10 +221,11 @@ public class Main {
 					if (xmouse > xmain) {
 						pnx = -1;
 					}
-					createdBullets.add(new BulletInfo(xmain, ymain, k, c, pnx));
+					bullets.add(new Bullet(xmain, ymain, k, c, pnx));
 				}
 			}
-
+			
+			// character's moves
 			while (Keyboard.next()) {
 
 				if (Keyboard.getEventKey() == Keyboard.KEY_W

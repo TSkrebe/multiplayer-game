@@ -1,8 +1,9 @@
 package server.side;
 
 
-import game.library.Box;
-import game.library.CharacterControlData;
+import server.side.Helper.WrapperList;
+import server.side.models.Box;
+import server.side.models.CharacterObj;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -25,6 +26,8 @@ import java.util.TimerTask;
 import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import javax.xml.bind.JAXBException;
+
 
 public class Main {
 
@@ -37,16 +40,16 @@ public class Main {
 	
 	private static long IDs = 0L;
 	
-	//thread safe arrasy because while one thread is reading another
+	//thread safe array because while one thread is reading another
 	//might add delete some entries
 	private CopyOnWriteArrayList<IpPort> activeClients;
 	private Vector<MainCharacter> fullCharacters;
 
-	private List<Box> tiles;
-	private List<Box> gamePlay;
+	private WrapperList tiles;
+	private WrapperList gamePlay;
 	
 	private UdpConnectionsSend udpSend;
-	//private final 
+	
 	public static void main(String[] args) {
 		
 		if (args.length != 1)
@@ -60,8 +63,8 @@ public class Main {
 		
 		SERVER_PORT_TCP = tcpPort;
 		activeClients = new CopyOnWriteArrayList<IpPort>();
-		tiles = new ArrayList<Box>();
-		gamePlay = new ArrayList<Box>();
+		tiles = new WrapperList();
+		gamePlay = new WrapperList();
 		udpSend = new UdpConnectionsSend();
 		fullCharacters = new Vector<MainCharacter>();
 	}
@@ -107,7 +110,7 @@ public class Main {
 			private void updateGamePlay() {
 				gamePlay.clear();
 				for (MainCharacter mc : fullCharacters){
-					gamePlay.addAll(mc.update(tiles, fullCharacters));
+					gamePlay.addAll(mc.update(tiles.realList, fullCharacters));
 				}
 			}
 			
@@ -125,7 +128,7 @@ public class Main {
 	 * @param data that we get from client
 	 */
 	
-	void includeCharacter(CharacterControlData data){
+	void includeCharacter(CharacterObj data){
 		
 		long specId = data.id;
 		for (MainCharacter mc : fullCharacters){
@@ -170,7 +173,7 @@ public class Main {
 		}
 	} 
 	
-	public List<Box> getMap(){
+	public WrapperList getMap(){
 		return tiles;
 	}
 	
@@ -192,12 +195,11 @@ public class Main {
 				
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
 				ObjectOutputStream oos = new ObjectOutputStream(baos);
-				oos.writeObject(gamePlay);
+				oos.writeObject(Helper.marshall(gamePlay));
 				byte [] bytes = baos.toByteArray();
 				DatagramPacket packet = new DatagramPacket(bytes, bytes.length);
 				
 				for (IpPort dest : activeClients){
-					
 					packet.setAddress(dest.address);
 					packet.setPort(dest.port);
 					gamePlaySocket.send(packet);
@@ -205,7 +207,7 @@ public class Main {
 					packet.setLength(bytes.length);
 				}
 				
-			}catch (IOException e) {
+			}catch (IOException | JAXBException e) {
 			
 			}
 		}

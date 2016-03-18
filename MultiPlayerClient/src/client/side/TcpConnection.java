@@ -1,13 +1,16 @@
 package client.side;
 
-import game.library.Box;
-import game.library.CharacterControlData;
-import game.library.ServerMessage;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.List;
+
+import javax.xml.bind.JAXBException;
+
+import client.side.models.Box;
+import client.side.models.CharacterObj;
+import client.side.models.ServerMessage;
 
 
 class TcpConnection {
@@ -20,7 +23,6 @@ class TcpConnection {
 	
 	private final int SERVER_PORT_TCP;
 	
-	//ip of server side
 	private final String SERVER_IP;
 
 	private ObjectOutputStream oos;
@@ -45,9 +47,12 @@ class TcpConnection {
 	long getIdFromServer() {
 		
 		try {
-			oos.writeObject(new ServerMessage(GET_ID));
+			ServerMessage sm = new ServerMessage(GET_ID);
+			String data = Helper.marshall(sm);
+			oos.writeObject(data);
+			
 			return ois.readLong();
-		} catch (IOException e) {
+		} catch (IOException | JAXBException e) {
 			e.printStackTrace();
 		}
 		return -1;
@@ -57,47 +62,55 @@ class TcpConnection {
 	List<Box> getMapDetails() {
 		
 		try {
-			oos.writeObject(new ServerMessage(GET_MAP));
-			return (List<Box>) ois.readObject();
-		} catch (IOException | ClassNotFoundException e) {
+			ServerMessage sm = new ServerMessage(GET_MAP);
+			String data = Helper.marshall(sm);
+			oos.writeObject(data);
+			
+			String response = (String) ois.readObject();
+			return Helper.unmarshall(response);
+			
+		} catch (IOException | ClassNotFoundException | JAXBException e) {
 			e.printStackTrace();
 		}
 		return null;
 	}
 	
 	/** Sends data about the main character to server. Velocity, etc. */
-	void sendUpdatedVersion(CharacterControlData data) {
+	void sendUpdatedVersion(CharacterObj character) {
 		try {
-			ServerMessage msg = new ServerMessage(SEND_MAIN_CHARACTER);
-			msg.setCharacterData(data);
-			oos.writeObject(msg);
+			ServerMessage sm = new ServerMessage(SEND_MAIN_CHARACTER);
+			sm.setCharacterData(character);
+			String data = Helper.marshall(sm);
+			oos.writeObject(data);
 			oos.reset();
-		} catch (IOException e) {
+		} catch (IOException | JAXBException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	/** Sends Ip and port of Udp connection **/
+	/** Sends IP and port of Udp connection **/
 	void sendIpIdPort(int port) {
 		
 		try {
-			ServerMessage msg = new ServerMessage(GET_ID_IP_PORT);
-			msg.port = port;
-			oos.writeObject(msg);
-		} catch (IOException e) {
+			ServerMessage sm = new ServerMessage(GET_ID_IP_PORT);
+			sm.setPort(port);
+			String data = Helper.marshall(sm);
+			oos.writeObject(data);
+		} catch (IOException | JAXBException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	/** Sends id of player to server to inform that player has left the game **/
+	/** Sends id of player to the server to inform that a player has left the game **/
 	void removeCharacter(long id) {
 		
 		try {
-			ServerMessage msg = new ServerMessage(REMOVE_CHARACTER);
-			msg.id = id;
-			oos.writeObject(msg);
+			ServerMessage sm = new ServerMessage(REMOVE_CHARACTER);
+			sm.setId(id);
+			String data = Helper.marshall(sm);
+			oos.writeObject(data);
 			//oos.reset();
-		} catch (IOException e) {
+		} catch (IOException | JAXBException e) {
 			e.printStackTrace();
 		}
 	}

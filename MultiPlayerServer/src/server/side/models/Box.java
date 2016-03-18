@@ -1,7 +1,14 @@
-package game.library;
+package server.side.models;
 
 import java.io.Serializable;
+import java.util.Set;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Box implements Serializable{
 	
 	public float x;
@@ -16,6 +23,8 @@ public class Box implements Serializable{
 	public float b;
 	
 	public long id;
+	
+	public Box(){}
 	
 	public Box(float x, float y, int width, int height, float r, float g, float b, long id, int xp) {
 		this.r = r;
