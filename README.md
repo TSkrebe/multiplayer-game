@@ -11,6 +11,7 @@ Data is shared through TCP and UPD protocols
 
 
 Client ----> Server  | TCP
+
 Server ----> Clients | UDP
 
 
