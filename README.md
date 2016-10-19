@@ -21,13 +21,14 @@ Written in Java SE 8.
 **Running projects**
  
  
-Server side 
+#Server side 
  
 To run MultiPlayerServer project you have to pass only one argument -- TCP port.
+
 java -jar serverSide.jar 10000
  
  
-Client side 
+#Client side 
 
 Default lwjgl natives are compatible with LINUX. Change that if you use other OS. Look into lib directory.
  
@@ -40,5 +41,6 @@ To run MultiPlayerClient project you have to pass arguments in such order
 
 Example: 
 If server runs on localhost: 
+
 localhost 7896 1234  
 
